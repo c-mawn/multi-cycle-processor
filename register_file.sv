@@ -17,8 +17,11 @@ module register_file #(
     end
 
     always_ff @(negedge clk) begin
-        if write_enable == 1
-            register_memory[destination_register] <= destination_value;
+        if write_enable == 1 begin
+            if destination_register > 0 begin
+                register_memory[destination_register] <= destination_value;
+            end
+        end
     end
 
 endmodule
