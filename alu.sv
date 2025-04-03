@@ -1,10 +1,10 @@
 /*
-alu module:
+arithetic logic unit module:
 
 inputs:
     func3: 3 bits
     func7: 7 bits
-    opcode: 2 bits
+    opcode: 7 bits
     op1: 32 bits
     op2: 32 bits
 
@@ -27,6 +27,7 @@ module alu #(
     input logic[2:0] func3,
     input logic func7,
     input logic[6:0] opcode,
+    input logic imm, // only used in b-type
     input logic[31:0] op1,
     input logic[31:0] op2,
     output logic[31:0] result
@@ -38,10 +39,11 @@ module alu #(
     // 10: func7[5] = 0
     // 11: func7[5] = 1
     logic f7 = 2'b00
+    logic immed = 12'b000000000000
 
     initial begin
         // handle func7, whether it is all 0, has a 1, for is unitialized
-        if(func7 === 'bx) begin
+        if(func7 === 'bx) begin // this === will not work on fpga, only tb
             f7 <= 2'b00
         end 
         else if(func7 == 0) begin
@@ -51,12 +53,16 @@ module alu #(
             f7 <= 2'b11
         end
 
+        if(imm !=== 'bx) begin 
+
+        end
+
 
         
 
     end
 
-    always_comb begin
+    always_comb begin //add default statements
         // using the func3 and func7 input, performs the correct instruction
         case(func3)
             3'b000: begin 
@@ -246,5 +252,6 @@ module alu #(
         endcase
     end
 )
+endmodule
 
 
