@@ -16,10 +16,10 @@ inputs, then output the result.
 */
 
 module alu #(
-    parameter ITYPE = 7'b0010011
-    parameter J_ITYPE = 7'b1100111
-    parameter RTYPE = 7'b0110011
-    parameter BTYPE = 7'b1100011
+    parameter logic ITYPE = 7'b0010011,
+    parameter logic J_ITYPE = 7'b1100111,
+    parameter logic RTYPE = 7'b0110011,
+    parameter logic BTYPE = 7'b1100011
 )
 (
 
@@ -27,7 +27,6 @@ module alu #(
     input logic[2:0] func3,
     input logic func7,
     input logic[6:0] opcode,
-    input logic imm, // only used in b-type
     input logic[31:0] op1,
     input logic[31:0] op2,
     output logic[31:0] result
@@ -39,7 +38,6 @@ module alu #(
     // 10: func7[5] = 0
     // 11: func7[5] = 1
     logic f7 = 2'b00
-    logic immed = 12'b000000000000
 
     initial begin
         // handle func7, whether it is all 0, has a 1, for is unitialized
@@ -53,9 +51,7 @@ module alu #(
             f7 <= 2'b11
         end
 
-        if(imm !=== 'bx) begin 
-
-        end
+        
 
 
         
@@ -77,18 +73,18 @@ module alu #(
                     2'b00: begin
                         case(opcode)
                             ITYPE: begin
-                                result <= op1 + op2 //addi
+                                result = op1 + op2 //addi
                             end
                             BTYPE: begin
-                                //beq How do I access current pc val?
+                                result = op1 + op2 //beq
                             end
                             J_ITYPE: begin
-                                //jalr 
+                                result = op1 + op2 //jalr 
                             end
                         endcase
                     end
                     2'b10: begin
-                        result <= op1 + op2 //add
+                        result = op1 + op2 //add
                     end
                 endcase
             end
@@ -101,15 +97,15 @@ module alu #(
                 */
                 case(f7)
                     2'b00: begin
-                        //bne
+                        result = op1 + op2 //bne
                     end
                     2'b10:begin
                         case(opcode)
                             ITYPE: begin
-                                result <= op1 << op2 //slli 
+                                result = op1 << op2 //slli 
                             end
                             RTYPE: begin
-                                result <= op1 << op2 //sll
+                                result = op1 << op2 //sll
                             end
                         endcase
                     end
@@ -123,10 +119,10 @@ module alu #(
                 */
                 case(f7)
                     2'b00: begin
-                        result <= (op1 < op2) //slti, not sure if this is correct
+                        result = (op1 < op2) //slti, not sure if this is correct
                     end
                     2'b10: begin
-                        result <= (op1 < op2) //slt, not sure if this is correct
+                        result = (op1 < op2) //slt, not sure if this is correct
                     end
                 endcase
             end
@@ -138,10 +134,10 @@ module alu #(
                 */
                 case(f7)
                     2'b00:begin
-                        result <= (op1 < op2) //sltiu, not sure if this is correct
+                        result = (op1 < op2) //sltiu, not sure if this is correct
                     end
                     2'b10:begin
-                        result <= (op1 < op2) //sltu, not sure if this is correct
+                        result = (op1 < op2) //sltu, not sure if this is correct
                     end
                 endcase
             end
@@ -156,15 +152,15 @@ module alu #(
                     2'b00:begin
                         case(opcode)
                             ITYPE:begin
-                                result <= (op1 ^ op2) //xori
+                                result = (op1 ^ op2) //xori
                             end
                             BTYPE:begin
-                                //blt
+                                result = op1 + op2 //blt
                             end
                         endcase
                     end
                     2'b10:begin
-                        result <= (op1 ^ op2) //xor
+                        result = (op1 ^ op2) //xor
                     end
                 endcase
             end
@@ -179,25 +175,25 @@ module alu #(
                 */
                 case(f7)
                     2'b00:begin
-                        //bge
+                        result = op1 + op2 //bge
                     end
                     2'b10:begin
                         case(opcode)
                             ITYPE: begin
-                                result <= (op1 >> op2) //srli
+                                result = (op1 >> op2) //srli
                             end
                             RTYPE:begin
-                                result <= (op1 >> op2) //srl
+                                result = (op1 >> op2) //srl
                             end
                         endcase
                     end
                     2'b11:begin
                         case(opcode)
                             ITYPE:begin
-                                result <= (op1 >>> op2) //srai
+                                result = (op1 >>> op2) //srai
                             end
                             RTYPE:begin
-                                result <= (op1 >>> op2) //sra
+                                result = (op1 >>> op2) //sra
                             end
                         endcase
                     end
@@ -214,15 +210,15 @@ module alu #(
                     2'b00: begin
                         case(opcode)
                             ITYPE: begin
-                                result <= op1 | op2//ori
+                                result = op1 | op2 //ori
                             end
                             BTYPE: begin
-                                //bltu
+                                result = op1 + op2 //bltu
                             end
                         endcase
                     end
                     2'b10:begin
-                        result <= op1 | op2//or
+                        result = op1 | op2 //or
                     end
                 endcase
             end
@@ -237,15 +233,15 @@ module alu #(
                     2'b00:begin
                         case(opcode)
                             ITYPE: begin
-                                result <= op1 & op2 //andi
+                                result = op1 & op2 //andi
                             end
                             BTYPE: begin
-                                //bgeu
+                                result = op1 + op2 //bgeu
                             end
                         endcase
                     end
                     2'b10:begin
-                        result <= op1 & op2 //and
+                        result = op1 & op2 //and
                     end
                 endcase
             end
