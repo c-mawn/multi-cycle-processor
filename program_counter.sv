@@ -33,7 +33,7 @@ always_ff @(posedge clk) begin
         endcase
     end
 
-    if (opcode == 7'1100111) begin // check for jalr
+    if (opcode == 7'b1100111) begin // check for jalr
         select_bit <= 1'b1;
     end
 
