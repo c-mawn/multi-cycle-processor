@@ -4,6 +4,13 @@ module immediate_generator (
     output logic immediate_value
 );
 
+    // Initialize memory array
+    initial begin
+        instr_type <= R;
+        short_immed <= 32'd0;
+        long_immed <= 32'd0;
+    end
+
     always_comb begin
         op_code = current_instruction[6:0];
         funct3 = current_instruction[14:12];
