@@ -30,6 +30,16 @@ module top #(
     logic select_pc_value;
     logic select_address_source;
 
+    logic [31:0] registers [31:0]; // Create 32 32-bit registers
+
+    initial begin
+        for (int i=0, i < 32, i++) begin
+            registers[i] = 32'd0; // Set each register value to 32 0s
+        end
+        read_address = 32'b0;
+        func3 = 3'b010;
+    end
+
     always_ff @(posedge clk) begin
         case (opcode)
             7'b0110011: selection_string <= 8'b11100100; // R-Type
@@ -53,19 +63,30 @@ module top #(
     end
 
     always_comb begin
-        write_enable_register = write_enable_register; // Enable signal logic is built into memory
+        // write_enable_register = write_enable_register; // Enable signal logic is built into memory
         op1 = select_alu_op1 ? rs1v : pc_value; // Select rs1v if select_alu_op1 is 1, otherwise select pc_value
         op2 = select_alu_op2 ? rs2v : immediate_value;
-        write_enable_memory = write_enable_memory; // Enable signal logic is built into program counter
+        // write_enable_memory = write_enable_memory; // Enable signal logic is built into program counter
         case (select_rdv)
             2'b00: rdv <= pc_value;
             2'b01: rdv <= alu_output;
             2'b10: rdv <= immediate_value;
             2'b11: rdv <= read_data;
         endcase
-        select_pc_value = select_pc_value; // Selection logic is built into program counter
-        select_address_source = select_address_source ? alu_output : pc_value;
+        // select_pc_value = select_pc_value; // Selection logic is built into program counter
+        read_address = select_address_source ? alu_output : pc_value;
     end
+
+    always_ff @(posedge clk) begin
+        write_data <= rs2v;
+        write_address <= alu_output;
+    end
+
+    // Processor Logic Begin
+
+    // Determine ALU output or PC into memory RA
+    // ALU output into memory WA 
+    // rs2v into WD
 
     program_counter program_count (
         .clk        (clk),
@@ -77,21 +98,31 @@ module top #(
         .pc         (pc_value),
     )
 
-    // Determine ALU output or PC into memory RA
-    // ALU output into memory WA 
-    // rs2v into WD
-    memory mem (
+    memory mem #(
+        .INIT_FILE ("test.txt")
+    )(
         .clk (clk),
         .write_mem (write_enable_memory),
         .funct3 (func3),
         .write_address (write_address),
         .write_data (write_data),
         .read_address (read_address),
-        .read_data (read_data),
+        .read_data (read_data), // This is the current instruction
         .led (led),
         .red (red),
         .green (green),
         .blue (blue)
+    )
+
+    instruction_register instruction_reg (
+        .clk (clk),
+        .read_data (read_data),
+        .current_instruction (current_instruction),
+        .rs1 (rs1),
+        .rs2 (rs2),
+        .rd (rd),
+        .opcode (opcode),
+        .func3 (fun3)
     )
 
     // Determine rdv from imm, ALU output, rd, or PC + 4
@@ -105,17 +136,6 @@ module top #(
         .destination_value (rdv),
         .source_value_1 (rs1v),
         .source_value_2 (rs2v)
-    )
-
-    instruction_register instruction_reg (
-        .clk (clk),
-        .read_data (read_data),
-        .current_instruction (current_instruction),
-        .rs1 (rs1),
-        .rs2 (rs2),
-        .rd (rd),
-        .opcode (opcode),
-        .func3 (fun3)
     )
 
     // Select either rs2v or imm into op2
@@ -137,9 +157,5 @@ module top #(
         .immediate_value (immediate_value)
 
     )
-
-    always_ff @(posedge clk) begin
-        
-    end
 
 endmodule
