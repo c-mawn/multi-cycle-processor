@@ -63,14 +63,14 @@ module immediate_generator (
                 long_immed[31:12] <= 20'b11111111111111111111;
             end
             else begin
-                long_immed[31:12] <= 20'b0;
+                long_immed[31:12] <= 20'b00000000000000000000;
             end
             long_immed[11:0] <= short_immed[11:0];
         end
         if op_code == 19 begin // I
             if funct3[2:1] == 01 begin
                 // Sign Extend N
-                long_immed[31:12] <= 20'b0;
+                long_immed[31:12] <= 20'b00000000000000000000;
                 long_immed[11:1] <= short_immed;
             end
             else begin
@@ -79,13 +79,15 @@ module immediate_generator (
                     long_immed[31:12] <= 20'b11111111111111111111;
                 end
                 else begin
-                    long_immed[31:12] <= 20'b0;
+                    long_immed[31:12] <= 20'b00000000000000000000;
                 end
                 long_immed[11:0] <= short_immed[11:0];
             end
         end
         if op_code == 23 begin // U
             // Upper Immediate
+            long_immed[11:0] <= 12'b000000000000;
+            long_immed[31:12] <= short_immed[31:12];
         end
         if op_code == 35 begin // S
             // Sign extend Y
@@ -93,15 +95,18 @@ module immediate_generator (
                 long_immed[31:12] <= 20'b11111111111111111111;
             end
             else begin
-                long_immed[31:12] <= 20'b0;
+                long_immed[31:12] <= 20'b00000000000000000000;
             end
             long_immed[11:0] <= short_immed[11:0];
         end
         if op_code == 51 begin // R
             // We do nothing
+            long_immed <= 32'b00000000000000000000000000000000;
         end
         if op_code == 55 begin // U
             // Upper Immediate
+            long_immed[11:0] <= 12'b000000000000;
+            long_immed[31:12] <= short_immed[31:12];
         end
         if op_code == 99 begin // B
             // Sign Extend Y
@@ -109,10 +114,10 @@ module immediate_generator (
                 long_immed[31:13] <= 19'b1111111111111111111;
             end
             else begin
-                long_immed[31:13] <= 19'b0;
+                long_immed[31:13] <= 19'b00000000000000000000;
             end
             long_immed[12:1] <= short_immed[12:1];
-            long_immed[0] <= 0;
+            long_immed[0] <= 1'b0;
         end
         if op_code == 103 begin // I
             // Sign Extend Y
@@ -120,7 +125,7 @@ module immediate_generator (
                 long_immed[31:12] <= 20'b11111111111111111111;
             end
             else begin
-                long_immed[31:12] <= 20'b0;
+                long_immed[31:12] <= 20'b00000000000000000000;
             end
             long_immed[11:0] <= short_immed[11:0];
         end
@@ -130,10 +135,10 @@ module immediate_generator (
                 long_immed[31:21] <= 11'b11111111111;
             end
             else begin
-                long_immed[31:21] <= 11'b0;
+                long_immed[31:21] <= 11'b00000000000;
             end
             long_immed[20:1] <= short_immed[20:1];
-            long_immed[0] <= 0;
+            long_immed[0] <= 1'b0;
         end
     end
 
