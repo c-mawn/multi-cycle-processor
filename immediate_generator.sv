@@ -7,10 +7,10 @@ module immediate_generator (
     always_comb begin
         op_code = current_instruction[6:0];
         funct3 = current_instruction[14:12];
-        if (op_code == 3 | op_code == 19 | op_code == 103) begin
+        if (op_code == 3 || op_code == 19 || op_code == 103) begin
             instr_type <= I;
         end
-        else if (op_code == 23 | op_code == 55) begin
+        else if (op_code == 23 || op_code == 55) begin
             instr_type <= U;
         end
         else if (op_code == 35) begin
