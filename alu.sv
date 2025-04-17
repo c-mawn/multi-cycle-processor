@@ -16,11 +16,11 @@ inputs, then output the result.
 */
 
 module alu #(
-    parameter logic ITYPE = 7'b0010011,
-    parameter logic J_ITYPE = 7'b1100111,
-    parameter logic RTYPE = 7'b0110011,
-    parameter logic BTYPE = 7'b1100011,
-    parameter logic LTYPE = 7'b0000011
+    parameter logic[6:0] ITYPE = 7'b0010011,
+    parameter logic[6:0] J_ITYPE = 7'b1100111,
+    parameter logic[6:0] RTYPE = 7'b0110011,
+    parameter logic[6:0] BTYPE = 7'b1100011,
+    parameter logic[6:0] LTYPE = 7'b0000011
 )
 (
 
@@ -32,30 +32,31 @@ module alu #(
     input logic[31:0] op2,
     output logic[31:0] result
 );
-
-(
-
-    assign fn7 = ((opcode == RTYPE) ? func7 : 2'b01);
+    logic[1:0] fn7;
+    assign fn7 = ((opcode == RTYPE) ? {func7,1'b0} : 2'b01);
     // 3 possible states regarding func7 bit:
     // 00: func7 uninitialized
     // 10: func7[5] = 0
     // 11: func7[5] = 1
-    logic f7 = 2'b00;
+    logic[1:0] f7 = 2'b00;
 
-    initial begin
+    always_comb begin
         // handle func7, whether it is all 0, has a 1, for is unitialized
         if(fn7 == 2'b01) begin
-            f7 <= 2'b00;
+            f7 = 2'b00; //func7 not r type
         end 
-        else if(fn7 == 0) begin
-            f7 <= 2'b10;
+        else if(fn7 == 2'b00) begin
+            f7 = 2'b10; //func7 r type and 0
+        end
+        else if(fn7 == 2'b10) begin
+            f7 = 2'b01; //func7 r type and 1
         end
         else begin
-            f7 <= 2'b11;
+            f7 = 2'b11; //used for debugging, should never happen
         end
     end
 
-    always_comb begin //add default statements
+    always_comb begin 
         // using the func3 and func7 input, performs the correct instruction
         case(func3)
             3'b000: begin 
@@ -82,11 +83,16 @@ module alu #(
                             J_ITYPE: begin
                                 result = op1 + op2; //jalr 
                             end
+                            default: result = 32'd0;
                         endcase
                     end
                     2'b10: begin
                         result = op1 + op2; //add
                     end
+                    2'b01: begin
+                        result = op1 - op2; //sub
+                    end
+                    default: result = 32'd0;
                 endcase
             end
             3'b001: begin
@@ -106,6 +112,7 @@ module alu #(
                             LTYPE: begin
                                 result = op1 + op2; //lh
                             end
+                            default: result = 32'd0;
                         endcase
                     end
                     2'b10:begin
@@ -116,8 +123,10 @@ module alu #(
                             RTYPE: begin
                                 result = op1 << op2; //sll
                             end
+                            default: result = 32'd0;
                         endcase
                     end
+                    default: result = 32'd0;
                 endcase
             end
             3'b010: begin
@@ -136,11 +145,13 @@ module alu #(
                             LTYPE: begin
                                 result = op1 + op2; //lw
                             end
+                            default: result = 32'd0;
                         endcase
                     end
                     2'b10: begin
                         result = (op1 < op2); //slt, not sure if this is correct
                     end
+                    default: result = 32'd0;
                 endcase
             end
             3'b011: begin
@@ -156,6 +167,7 @@ module alu #(
                     2'b10:begin
                         result = (op1 < op2); //sltu, not sure if this is correct
                     end
+                    default: result = 32'd0;
                 endcase
             end
             3'b100: begin
@@ -178,11 +190,13 @@ module alu #(
                             LTYPE:begin
                                 result = op1 + op2; //lbu
                             end
+                            default: result = 32'd0;
                         endcase
                     end
                     2'b10:begin
                         result = (op1 ^ op2); //xor
                     end
+                    default: result = 32'd0;
                 endcase
             end
             3'b101: begin
@@ -204,6 +218,7 @@ module alu #(
                             LTYPE:begin
                                 result = op1 + op2; //lhu
                             end
+                            default: result = 32'd0;
                         endcase
                     end
                     2'b10:begin
@@ -214,6 +229,7 @@ module alu #(
                             RTYPE:begin
                                 result = (op1 >> op2); //srl
                             end
+                            default: result = 32'd0;
                         endcase
                     end
                     2'b11:begin
@@ -224,8 +240,10 @@ module alu #(
                             RTYPE:begin
                                 result = (op1 >>> op2); //sra
                             end
+                            default: result = 32'd0;
                         endcase
                     end
+                    default: result = 32'd0;
                 endcase
             end
             3'b110: begin
@@ -239,16 +257,18 @@ module alu #(
                     2'b00: begin
                         case(opcode)
                             ITYPE: begin
-                                result = op1 || op2; //ori
+                                result = op1 | op2; //ori
                             end
                             BTYPE: begin
                                 result = op1 + op2; //bltu
                             end
+                            default: result = 32'd0;
                         endcase
                     end
                     2'b10:begin
-                        result = op1 || op2; //or
+                        result = op1 | op2; //or
                     end
+                    default: result = 32'd0;
                 endcase
             end
             3'b111: begin
@@ -267,16 +287,18 @@ module alu #(
                             BTYPE: begin
                                 result = op1 + op2; //bgeu
                             end
+                            default: result = 32'd0;
                         endcase
                     end
                     2'b10:begin
                         result = op1 && op2; //and
                     end
+                    default: result = 32'd0;
                 endcase
             end
+            default: result = 32'd0;
         endcase
     end
-)
 endmodule
 
 
