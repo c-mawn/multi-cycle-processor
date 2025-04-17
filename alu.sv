@@ -112,14 +112,14 @@ module alu #(
                             LTYPE: begin
                                 result = op1 + op2; //lh
                             end
+                            ITYPE: begin
+                                result = op1 << op2; //slli 
+                            end
                             default: result = 32'd0;
                         endcase
                     end
                     2'b10:begin
                         case(opcode)
-                            ITYPE: begin
-                                result = op1 << op2; //slli 
-                            end
                             RTYPE: begin
                                 result = op1 << op2; //sll
                             end
@@ -140,7 +140,7 @@ module alu #(
                     2'b00: begin
                         case(opcode)
                             ITYPE: begin
-                                result = (op1 < op2); //slti, not sure if this is correct
+                                result = (op1 < op2); //slti
                             end
                             LTYPE: begin
                                 result = op1 + op2; //lw
@@ -149,7 +149,7 @@ module alu #(
                         endcase
                     end
                     2'b10: begin
-                        result = (op1 < op2); //slt, not sure if this is correct
+                        result = (op1 < op2); //slt
                     end
                     default: result = 32'd0;
                 endcase
@@ -218,30 +218,21 @@ module alu #(
                             LTYPE:begin
                                 result = op1 + op2; //lhu
                             end
-                            default: result = 32'd0;
-                        endcase
-                    end
-                    2'b10:begin
-                        case(opcode)
                             ITYPE: begin
-                                result = (op1 >> op2); //srli
-                            end
-                            RTYPE:begin
-                                result = (op1 >> op2); //srl
+                                case(func7)
+                                    1'b0:result = (op1 >> op2);//srli
+                                    1'b1:result = (op1 >>> op2); //srai
+                                    default: result = 32'd0;
+                                endcase                                
                             end
                             default: result = 32'd0;
                         endcase
                     end
-                    2'b11:begin
-                        case(opcode)
-                            ITYPE:begin
-                                result = (op1 >>> op2); //srai
-                            end
-                            RTYPE:begin
-                                result = (op1 >>> op2); //sra
-                            end
-                            default: result = 32'd0;
-                        endcase
+                    2'b10: begin
+                        result = (op1 >> op2); //srl
+                    end
+                    2'b01:begin
+                        result = (op1 >>> op2); //sra
                     end
                     default: result = 32'd0;
                 endcase
