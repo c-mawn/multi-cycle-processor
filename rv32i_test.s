@@ -9,3 +9,4 @@
     sll x8, x4, x5          # pc = 0x20, x8 = 0x0048D158
     ori x9, x8, 7           # pc = 0x24, x9 = 0x0048D15F
     auipc x10, 0x12345      # pc = 0x28, x10 = 0x12345028
+    lw x11, 6(x5)
