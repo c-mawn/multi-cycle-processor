@@ -20,6 +20,7 @@ module alu #(
     parameter logic[6:0] J_ITYPE = 7'b1100111,
     parameter logic[6:0] RTYPE = 7'b0110011,
     parameter logic[6:0] BTYPE = 7'b1100011,
+    parameter logic[6:0] UTYPE = 7'b0010111,
     parameter logic[6:0] LTYPE = 7'b0000011
 )
 (
@@ -58,6 +59,7 @@ module alu #(
 
     always_comb begin 
         // using the func3 and func7 input, performs the correct instruction
+        
         case(func3)
             3'b000: begin 
                 /* 
@@ -289,6 +291,7 @@ module alu #(
             end
             default: result = 32'd0;
         endcase
+        if(opcode == UTYPE) begin result = op1+op2; end
     end
 endmodule
 
