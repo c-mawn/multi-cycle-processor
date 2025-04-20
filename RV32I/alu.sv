@@ -21,7 +21,9 @@ module alu #(
     parameter logic[6:0] RTYPE = 7'b0110011,
     parameter logic[6:0] BTYPE = 7'b1100011,
     parameter logic[6:0] UTYPE = 7'b0010111,
-    parameter logic[6:0] LTYPE = 7'b0000011
+    parameter logic[6:0] LTYPE = 7'b0000011,
+    parameter logic[6:0] STYPE = 7'b0100011,
+    parameter logic[6:0] JTYPE = 7'b1101111
 )
 (
 
@@ -58,6 +60,7 @@ module alu #(
     end
 
     always_comb begin 
+        result = 32'd0;
         // using the func3 and func7 input, performs the correct instruction
         
         case(func3)
@@ -82,8 +85,12 @@ module alu #(
                             LTYPE: begin
                                 result = op1 + op2; //lb
                             end
+                            STYPE: begin
+                                result = op1 + op2; //sb
+                            end
                             J_ITYPE: begin
                                 result = op1 + op2; //jalr 
+                                result[0] = 1'b0; //set the LSB to 0
                             end
                             default: result = 32'd0;
                         endcase
@@ -113,6 +120,9 @@ module alu #(
                             end
                             LTYPE: begin
                                 result = op1 + op2; //lh
+                            end
+                            STYPE: begin
+                                result = op1 + op2; //sh
                             end
                             ITYPE: begin
                                 result = op1 << op2; //slli 
@@ -146,6 +156,9 @@ module alu #(
                             end
                             LTYPE: begin
                                 result = op1 + op2; //lw
+                            end
+                            STYPE: begin
+                                result = op1 + op2; //sw
                             end
                             default: result = 32'd0;
                         endcase
@@ -223,7 +236,7 @@ module alu #(
                             ITYPE: begin
                                 case(func7)
                                     1'b0:result = (op1 >> op2);//srli
-                                    1'b1:result = (op1 >>> op2); //srai
+                                    1'b1:result = ($signed(op1) >>> $signed(op2)); //srai
                                     default: result = 32'd0;
                                 endcase                                
                             end
@@ -234,7 +247,7 @@ module alu #(
                         result = (op1 >> op2); //srl
                     end
                     2'b01:begin
-                        result = (op1 >>> op2); //sra
+                        result = ($signed(op1) >>> $signed(op2)); //sra
                     end
                     default: result = 32'd0;
                 endcase
@@ -292,6 +305,7 @@ module alu #(
             default: result = 32'd0;
         endcase
         if(opcode == UTYPE) begin result = op1+op2; end
+        if(opcode == JTYPE) begin result = op1+op2; end
     end
 endmodule
 

@@ -46,21 +46,21 @@ module select_bits (
                 wen_reg            = 1'b1;
                 select_rdv         = 2'b00;
                 select_pc_value    = 1'b1;
-                select_address_src = 1'b1;
+                select_address_src = 1'b0;
             end
             7'b0100011: begin // S-Type
                 wen_mem            = 1'b1;
                 select_op1         = 1'b1;
                 select_op2         = 1'b0;
                 wen_reg            = 1'b0;
-                select_rdv         = 2'bxx;
+                select_rdv         = 2'b00; // Doesn't matter
                 select_pc_value    = 1'b0;
                 select_address_src = 1'b0;
             end
             7'b0110111: begin // U-Type (lui)
                 wen_mem            = 1'b0;
-                select_op1         = 1'bx;
-                select_op2         = 1'bx;
+                select_op1         = 1'b0; // Doesn't matter
+                select_op2         = 1'b0; // Doesn't matter
                 wen_reg            = 1'b1;
                 select_rdv         = 2'b10;
                 select_pc_value    = 1'b0;
@@ -86,11 +86,20 @@ module select_bits (
             end
             7'b1100011: begin // B-Type
                 wen_mem            = 1'b0;
+                select_op1         = 1'b0;
+                select_op2         = 1'b0;
+                wen_reg            = 1'b0;
+                select_rdv         = 2'b00; // Doesn't matter
+                select_pc_value    = 1'b0; // Another select-bit is decided in PC
+                select_address_src = 1'b0;
+            end
+            default: begin
+                wen_mem            = 1'b0;
                 select_op1         = 1'b1;
                 select_op2         = 1'b1;
                 wen_reg            = 1'b0;
-                select_rdv         = 2'bxx;
-                select_pc_value    = 1'b0; // Another select-bit is decided in PC
+                select_rdv         = 2'b00; // Doesn't matter
+                select_pc_value    = 1'b0;
                 select_address_src = 1'b0;
             end
         endcase

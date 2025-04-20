@@ -20,9 +20,9 @@ module register_file (
         end
     end
 
-    always_ff @(posedge clk) begin
-        rs1v <= register_memory[rs1];
-        rs2v <= register_memory[rs2];
+    always_comb begin
+        rs1v = register_memory[rs1];
+        rs2v = register_memory[rs2];
     end
 
     always_ff @(negedge clk) begin // kind of a hack because yes.

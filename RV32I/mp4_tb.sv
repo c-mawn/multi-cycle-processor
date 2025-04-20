@@ -24,7 +24,7 @@ module mp4_tb;
         $dumpfile("mp4.vcd");
         $dumpvars(0, mp4_tb);
         SW = '0; #500ns; SW = '1;
-        #5us
+        #10us
         $finish;
     end
 
