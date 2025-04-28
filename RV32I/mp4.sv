@@ -89,15 +89,12 @@ module mp4 (
         .func3     (func3_buffer)
     );
 
-    logic func7_5;
-
     // Only pass funct3 bits from instruction register to memory when it's a load or store instruction
     always_comb begin
         func3 = func3_buffer;
         if (opcode == 7'b0000011 || opcode == 7'b0100011) begin
             funct3_mem = func3;
         end
-        func7_5 = func7[5];
     end
 
     // Stage 2 - Execute
@@ -172,7 +169,7 @@ module mp4 (
         // Inputs
         .func3  (func3),
         .opcode (opcode),
-        .func7  (func7_5),
+        .func7  (func7),
         .op1    (op1),
         .op2    (op2),
         // Outputs
