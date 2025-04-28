@@ -1,0 +1,31 @@
+# Assembly code to make the rgb led cycle through colors
+# TODO: Change the registers for the led to the actual ones used on FPGA
+# $1: Red, $2: Green, $3: Blue, $4: const max val reg
+# Assuming the leds have a value range from 0-8 (change later)
+
+addi $1,$0,0 # init red to 0
+addi $2,$0,3 # init green to 3
+addi $3,$0,6 # init blue to 6
+
+FOR:
+    addi $1, $1, 1 # add 1 to red val
+    addi $2, $2, 1 # add 1 to green val
+    addi $3, $3, 1 # add 1 to blue val
+
+    beq $1, $4, Reset_Red
+    beq $2, $4, Reset_Green
+    beq $2, $4, Reset_Blue
+
+    beq $0, $0, FOR
+
+Reset_Red:
+    addi $1, $0, 0 
+    beq $0, $0 FOR
+
+Reset_Green:
+    addi $2, $0, 0 
+    beq $0, $0 FOR
+
+Reset_Blue:
+    addi $3, $0, 0 
+    beq $0, $0 FOR
