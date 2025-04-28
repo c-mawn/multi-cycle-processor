@@ -30,32 +30,34 @@ module alu #(
 
     input logic[2:0] func3,
     input logic[6:0] opcode,
-    input logic func7,
+    input logic[6:0] func7, // Going to need all 7 bits of func7
     input logic[31:0] op1,
     input logic[31:0] op2,
     output logic[31:0] result
 );
     logic[1:0] fn7;
-    assign fn7 = ((opcode == RTYPE) ? {func7,1'b0} : 2'b01);
+    assign fn7 = ((opcode == RTYPE) ? {func7[5],1'b0} : 2'b01);
     // 3 possible states regarding func7 bit:
     // 00: func7 uninitialized
     // 10: func7[5] = 0
     // 11: func7[5] = 1
     logic[1:0] f7 = 2'b00;
 
+    logic[63:0] temp_64 = 64'd0;
+
     always_comb begin
         // handle func7, whether it is all 0, has a 1, for is unitialized
         if(fn7 == 2'b01) begin
             f7 = 2'b00; //func7 not r type
         end 
-        else if(fn7 == 2'b00) begin
+        else if(fn7 == 2'b00 && func7[0] != 1'b1) begin //Check this if not working
             f7 = 2'b10; //func7 r type and 0
         end
         else if(fn7 == 2'b10) begin
             f7 = 2'b01; //func7 r type and 1
         end
-        else begin
-            f7 = 2'b11; //used for debugging, should never happen
+        else if(func7[0] == 1'b1) begin
+            f7 = 2'b11; //func7 is in the M instructions
         end
     end
 
@@ -101,6 +103,9 @@ module alu #(
                     2'b01: begin
                         result = op1 - op2; //sub
                     end
+                    2'b11: begin
+                        result = op1 * op2; //mul
+                    end
                     default: result = 32'd0;
                 endcase
             end
@@ -138,6 +143,10 @@ module alu #(
                             default: result = 32'd0;
                         endcase
                     end
+                    2'b11:begin
+                        temp_64 = (($signed(op1)) * ($signed(op2))); // mulh
+                        result = temp_64[63:32];
+                    end
                     default: result = 32'd0;
                 endcase
             end
@@ -166,6 +175,10 @@ module alu #(
                     2'b10: begin
                         result = (op1 < op2); //slt
                     end
+                    2'b11: begin
+                        temp_64 = ($signed(op1)) * op2; //mulhsu
+                        result = temp_64[63:32];
+                    end
                     default: result = 32'd0;
                 endcase
             end
@@ -181,6 +194,10 @@ module alu #(
                     end
                     2'b10:begin
                         result = (op1 < op2); //sltu, not sure if this is correct
+                    end
+                    2'b11: begin
+                        temp_64 = op1 * op2; //mulhu
+                        result = temp_64[63:32];
                     end
                     default: result = 32'd0;
                 endcase
@@ -210,6 +227,9 @@ module alu #(
                     end
                     2'b10:begin
                         result = (op1 ^ op2); //xor
+                    end
+                    2'b11: begin
+                        result = ($signed(op1) / $signed(op2)); //div
                     end
                     default: result = 32'd0;
                 endcase
@@ -249,6 +269,9 @@ module alu #(
                     2'b01:begin
                         result = ($signed(op1) >>> $signed(op2)); //sra
                     end
+                    2'b11: begin
+                        result = (op1 / op2); //divu
+                    end
                     default: result = 32'd0;
                 endcase
             end
@@ -274,6 +297,9 @@ module alu #(
                     2'b10:begin
                         result = op1 | op2; //or
                     end
+                    2'b11: begin
+                        result = ($signed(op1) % $signed(op2)); //rem
+                    end
                     default: result = 32'd0;
                 endcase
             end
@@ -298,6 +324,9 @@ module alu #(
                     end
                     2'b10:begin
                         result = op1 && op2; //and
+                    end
+                    2'b11: begin
+                        result = (op1 % op2); //remu
                     end
                     default: result = 32'd0;
                 endcase

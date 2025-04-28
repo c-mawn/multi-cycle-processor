@@ -7,7 +7,7 @@ module alu_tb;
     logic clk = 0;
     logic [31:0]result;
     logic [2:0]func3_wire;
-    logic func7_wire;
+    logic [6:0]func7_wire;
     logic [6:0]opcode_wire;
     logic [31:0]op1_wire;
     logic [31:0]op2_wire; 
@@ -23,11 +23,11 @@ module alu_tb;
 
     initial begin
         
-        func3_wire = 3'b000;
-        func7_wire = 1'b1;
+        func3_wire = 3'b110;
+        func7_wire = 7'b0000001;
         opcode_wire = 7'b0110011;
-        op1_wire = 32'h00123456;
-        op2_wire = 32'h00123458;
+        op1_wire = 32'h00000033;
+        op2_wire = 32'h0000000A;
         
         $dumpfile("alu.vcd");
         $dumpvars(0, alu_tb);
